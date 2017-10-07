@@ -102,11 +102,11 @@ def training_mode(message):
 def check_answer(message):
     answer = get_answer_for_user(message.chat.id)
     if message.text == answer:
-        bot.send_message(message.chat.id, 'Good!')
+        bot.send_message(message.chat.id, f'🎉🎉 SO GOOD! 🎉🎉')
     elif message.text == '/end':
         return end_training(message)
     else:
-        bot.send_message(message.chat.id, 'Wrong answer')
+        bot.send_message(message.chat.id, f'🌚🌚 Nope, right answer is: {answer} 🌚🌚')
     return training_mode(message)
 
 
