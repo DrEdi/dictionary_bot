@@ -1,33 +1,15 @@
-import config
 import json
 import telebot
 import random
 import requests
-import sqlalchemy as sa
-import os
 
 from sqlalchemy.orm import sessionmaker
-from flask import Flask, request
-from models import Base, User, Word, WordToUser
+from models import User, Word, WordToUser
 from utils import set_user_game, get_answer_for_user, finish_user_game
+from main import bot, engine
 
 
-app = Flask(__name__)
-bot = telebot.TeleBot(config.TOKEN)
-engine = sa.create_engine(config.DATABASE_URL, echo=True)
 Session = sessionmaker(bind=engine)
-
-
-@app.route(f"/{config.TOKEN}", methods=['POST'])
-def getMessage():
-    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
-    return "!", 200
-
-@app.route("/")
-def webhook():
-    bot.remove_webhook()
-    bot.set_webhook(url=f"https://young-wildwood-79639.herokuapp.com/{config.TOKEN}")
-    return "!", 200
 
 
 @bot.message_handler(commands=['help_me'])
@@ -79,7 +61,7 @@ def end_training(message):
 def training_mode(message):
     session = Session()
     data = []
-    for word in session.query(Word).join(WordToUser).join(User).filter(User.chat_id==message.chat.id).all():
+    for word in session.query(Word).join(WordToUser).join(User).filter(User.chat_id == message.chat.id).all():
         data.append({"name": f'{word.name}', "translation": f'{word.translation}'})
     if not data:
         return bot.send_message(message.chat.id, "Add some words before!")
@@ -87,7 +69,6 @@ def training_mode(message):
         return bot.send_message(message.chat.id, "You must have more than 2 words!")
     random.shuffle(data)
     session.close()
-    main_iterator = len(data)-1
     word = data.pop(-1)
     wrong_word = data[0]
     markup = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
@@ -138,9 +119,3 @@ def create_word(message):
             session.commit()
             bot.send_message(message.chat.id, f"I aded this word to your dict. Translation: {w.translation}")
     session.close()
-
-
-if __name__ == "__main__":
-    Base.metadata.create_all(engine)
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
