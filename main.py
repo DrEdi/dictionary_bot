@@ -162,6 +162,21 @@ def create_word(message):
     session.close()
 
 
+@bot.message_handler(commands=['delete'])
+def delete_user_word(message):
+    session = Session()
+    word = ' '.join(message.text.split(' ')[1:]).lower()
+    w = session.query(WordToUser).join(Word).join(User).filter(User.chat_id == message.chat.id,
+                                                               Word.name == word).first()
+    if not w:
+        bot.send_message(message.chat.id, f"Oops, you do now have word {word} in your dict")
+    else:
+        session.delete(w)
+        session.commit()
+        bot.send_message(message.chat.id, "I deleted it. Don't forget to add some new 😚")
+    session.close()
+
+
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
     port = int(os.environ.get("PORT", 5000))
