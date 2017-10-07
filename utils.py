@@ -21,3 +21,8 @@ def get_answer_for_user(chat_id):
             return answer
         except KeyError:
             return None
+
+
+def create_code_snippet(text):
+    return f'```\n{text}\n```'
+

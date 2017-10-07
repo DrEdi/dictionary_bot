@@ -10,7 +10,13 @@ from flask import Flask, request
 from models import Base
 
 from models import User, Word, WordToUser
-from utils import set_user_game, get_answer_for_user, finish_user_game
+from utils import (
+    set_user_game,
+    get_answer_for_user,
+    finish_user_game,
+    create_code_snippet
+
+)
 
 
 engine = sa.create_engine(config.DATABASE_URL, echo=True)
@@ -71,10 +77,10 @@ def show_all_words(message):
     """Return list of all words registered for current user."""
 
     session = Session()
-    text = 'Word: translation\n'
+    text = "|{}|{}|\n".format('Word'.ljust(23), 'Translation'.ljust(23))
     for w in session.query(Word).join(WordToUser).join(User).filter(User.chat_id==message.chat.id).all():
-        text += f'{w.name}: {w.translation}\n'
-    bot.send_message(message.chat.id, text)
+        text += "|{}|{}|\n".format(w.name.ljust(23), w.translation.ljust(23))
+    bot.send_message(message.chat.id, create_code_snippet(text), parse_mode='Markdown')
     session.close()
 
 
@@ -126,7 +132,7 @@ def check_answer(message):
 @bot.message_handler(commands=['add'])
 def create_word(message):
     """Add new word to DB and register for current user."""
-    
+
     session = Session()
     u = session.query(User).filter_by(chat_id=message.chat.id).first()
     if not u:
