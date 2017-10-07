@@ -140,6 +140,8 @@ def create_word(message):
         bot.send_message(message.chat.id, "Send /start to register")
     else:
         word = ' '.join(message.text.split(' ')[1:]).lower()
+        if not word:
+            return bot.send_message(message.chat.id, "Empty string, sorry, I can't add it")
         w = session.query(Word).filter_by(name=word).first()
         if not w:
             web_session = requests.session()
