@@ -19,7 +19,7 @@ def help_message(message):
     I'll glad to help you with learning new words!
     Look, first of all you need to add some words to you dictionary
     call /add <your word> command to add new word
-    When you'll be ready, just call /train comand.
+    When you'll be ready, just call /train command.
     If you feel that it's enough for today, call /end command just from game
     to see list of all words in dictionary - call /show_all command!
     Hope you'll like me!
@@ -82,7 +82,7 @@ def training_mode(message):
 def check_answer(message):
     answer = get_answer_for_user(message.chat.id)
     if message.text == answer:
-        bot.send_message(message.chat.id, 'Goog!')
+        bot.send_message(message.chat.id, 'Good!')
     elif message.text == '/end':
         return end_training(message)
     else:
@@ -103,9 +103,9 @@ def create_word(message):
             web_session = requests.session()
             web_session.get('http://service.m-translate.com/translate')
             resp = web_session.post('http://service.m-translate.com/translate',
-                                     data={"translate_to":"ru",
-                                           "translate_from":"en",
-                                           "text": word}
+                                    data={"translate_to": "ru",
+                                          "translate_from": "en",
+                                          "text": word}
                                     )
             info = json.loads(resp.text)
             w_instance = Word(name=word, translation=info['translate'])
@@ -117,5 +117,5 @@ def create_word(message):
         else:
             session.add(WordToUser(user=u.id, word=w.id))
             session.commit()
-            bot.send_message(message.chat.id, f"I aded this word to your dict. Translation: {w.translation}")
+            bot.send_message(message.chat.id, f"I added this word to your dict. Translation: {w.translation}")
     session.close()
