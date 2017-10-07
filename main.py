@@ -34,14 +34,17 @@ def webhook():
 
 @bot.message_handler(commands=['help_me'])
 def help_message(message):
+    """Send message to user with explaining game rules."""
+
     text = """
     Hello, I'm a super dictionary bot!
     I'll glad to help you with learning new words!
-    Look, first of all you need to add some words to you dictionary
-    call /add <your word> command to add new word
-    When you'll be ready, just call /train command.
+    For register please call /start command!
+    Game: first of all you need to add some words to you dictionary
+    call /add <your word> command to add new one
+    When you'll be ready, just call /game command.
     If you feel that it's enough for today, call /end command just from game
-    to see list of all words in dictionary - call /show_all command!
+    To see list of all words in dictionary - call /show_all command!
     Hope you'll like me!
     Let's start!
     """
@@ -50,6 +53,8 @@ def help_message(message):
 
 @bot.message_handler(commands=['start'])
 def repeat_hello(message):
+    """Register new user to db."""
+
     session = Session()
     u = session.query(User).filter_by(chat_id=message.chat.id).first()
     if u:
@@ -63,6 +68,8 @@ def repeat_hello(message):
 
 @bot.message_handler(commands=['show_all'])
 def show_all_words(message):
+    """Return list of all words registered for current user."""
+
     session = Session()
     text = 'Word: translation\n'
     for w in session.query(Word).join(WordToUser).join(User).filter(User.chat_id==message.chat.id).all():
@@ -72,13 +79,17 @@ def show_all_words(message):
 
 
 def end_training(message):
+    """End game, if user send /end command."""
+
     keyboad = telebot.types.ReplyKeyboardRemove()
     bot.send_message(message.chat.id, 'Thanks for game! See you later', reply_markup=keyboad)
     finish_user_game(message.chat.id)
 
 
-@bot.message_handler(commands=['train'])
+@bot.message_handler(commands=['game'])
 def training_mode(message):
+    """Start new game with current user."""
+
     session = Session()
     data = []
     for word in session.query(Word).join(WordToUser).join(User).filter(User.chat_id == message.chat.id).all():
@@ -100,6 +111,8 @@ def training_mode(message):
 
 
 def check_answer(message):
+    """Check if response from user if valid."""
+
     answer = get_answer_for_user(message.chat.id)
     if message.text == answer:
         bot.send_message(message.chat.id, f'🎉🎉 SO GOOD! 🎉🎉')
@@ -112,6 +125,8 @@ def check_answer(message):
 
 @bot.message_handler(commands=['add'])
 def create_word(message):
+    """Add new word to DB and register for current user."""
+    
     session = Session()
     u = session.query(User).filter_by(chat_id=message.chat.id).first()
     if not u:
