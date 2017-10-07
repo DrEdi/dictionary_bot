@@ -109,8 +109,9 @@ def training_mode(message):
     word = data.pop(-1)
     wrong_word = data[0]
     markup = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-    markup.add(word['translation'])
-    markup.add(wrong_word['translation'])
+    data = [word['translation'], wrong_word['translation']]
+    random.shuffle(data)
+    markup.add(*data)
     set_user_game(message.chat.id, word['translation'])
     msg = bot.send_message(message.chat.id, f"{word['name']}", reply_markup=markup)
     bot.register_next_step_handler(msg, check_answer)
