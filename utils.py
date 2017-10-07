@@ -9,9 +9,9 @@ def set_user_game(chat_id, estimated_answer):
 def finish_user_game(chat_id):
     with shelve.open('shelve') as storage:
         try:
-        	del storage[str(chat_id)]
+            del storage[str(chat_id)]
         except KeyError:
-        	pass
+            pass
 
 
 def get_answer_for_user(chat_id):
